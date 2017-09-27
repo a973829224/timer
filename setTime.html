@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>自定义计时器</title>
+<style type="text/css">
+.time_box{width: 300px;border: 1px solid #ccc;margin: 0px auto;text-align: center;box-shadow:0px 0px 3px #800080;}
+.time_box span{font-size: 34px;font-weight: bold;}
+.data{line-height: 24px;}
+.data input{outline: none;}
+.data .tip{display: block;width: 190px;margin: auto;height: 24px;line-height: 24px;}
+.time{line-height: 50px;margin-top: 20px;}
+.btn_box{width: 300px;margin: 20px auto;height: 50px;text-align: center;}
+.btn_box button{display: inline-block;margin-left: 15px;padding: 0 10px;line-height: 30px;background: pink;color: #000;cursor: pointer;border: none;}
+.btn_box button:hover{color: purple;background: #000000;}
+</style>
+</head>
+<body>
+	<!--
+    	作者：973829224@qq.com
+    	时间：2017-09-27
+    	描述：倒计时小案例
+    -->
+	<div class="time_box">
+		<div class="data">
+			<p>请输入所需要的时间：</p>
+			<input type="text" id="hour" value=""/>时
+			<p class="h_tip tip">请输入0-24的数字！</p>
+			<input type="text" id="min" value="" />分
+			<p class="m_tip tip">请输入0-60的数字！</p>
+			<input type="text" id="sec" value="" />秒
+			<p class="s_tip tip">请输入0-60的数字！</p>
+		</div>
+		<div class="time">
+			<span id="h">00</span>:<span id="m">00</span>:<span id="s">10</span>
+		</div>
+	</div>
+	<div class="btn_box">
+		<button id="start">开始</button>
+		<button id="pause">暂停</button>
+		<button id="stop">停止</button>
+	</div>
+	<script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		$(function  () {
+			//测试正则
+			/*var reg1 = /^((\d)|[1-5][0-9]|59)$/;
+			for (var i=-2;i<80;i++) {
+				console.log(i+"and"+reg1.test(i));
+			}*/
+			/*小时输入框的检测*/
+			$("#hour").blur(function  () {
+				var $val = $(this).val();
+				var reg = /^((\d)|(1\d)|(2[0-4]))$/;
+				/*判断是够为空*/
+				if ($val == "") {
+					$(this).val("0");
+					$("#h").html("0"+$(this).val());
+					return true;
+				} else{
+					/*正则检测*/
+					if (!reg.test($val)) {
+						$(this).next("p").html("*输入错误").css("color","#ff0000");
+						return false;
+					} else{
+						$(this).next("p").html("请输入0-24的数字！").css("color","#000000");
+						/*判断是一位数或者是两位数*/
+						if ($val < 10) {
+							$("#h").html("0"+$(this).val());
+						} else{
+							$("#h").html($(this).val());
+						}
+						return true;
+					}
+				}
+			});
+			/*分钟数输入框的检测*/
+			$("#min").blur(function  () {
+				var $val = $(this).val();
+				var reg = /^((\d)|[1-5][0-9]|59)$/;
+				if ($val == "") {
+					$(this).val("0");
+					$("#m").html("0"+$(this).val());
+					return true;
+				} else{
+					if (!reg.test($val)) {
+						$(this).next("p").html("*输入错误").css("color","#ff0000");
+						return false;
+					} else{
+						$(this).next("p").html("请输入0-60的数字！").css("color","#000000");
+						if ($val < 10) {
+							$("#m").html("0"+$(this).val());
+						} else{
+							$("#m").html($(this).val());
+						}
+						return true;
+					}
+				}
+			});
+			/*分钟数输入框的检测*/
+			$("#sec").blur(function  () {
+				var $val = $(this).val();
+				var reg = /^((\d)|[1-5][0-9]|59)$/;
+				if ($val == "") {
+					$(this).val("0");
+					$("#s").html("0"+$(this).val());
+					return true;
+				} else{
+					if (!reg.test($val)) {
+						$(this).next("p").html("*输入错误").css("color","#ff0000");
+						return false;
+					} else{
+						$(this).next("p").html("请输入0-60的数字！").css("color","#000000");
+						if ($val < 10) {
+							$("#s").html("0"+$(this).val());
+						} else{
+							$("#s").html($(this).val());
+						}
+						return true;
+					}
+				}
+			});
+			//待优化：三个正则检测部分重复
+			$("#start").on("click",function  () {
+				if ($("#h").text() == "00" && $("#m").text() == "00" && $("#s").text() == "00") {
+					alert("时间为0，请重新输入时间！");
+				} else{
+					/*递归每秒调用downTime方法，显示动态时间效果  */
+					timer = window.setInterval("downTime();",1000);
+					attr($("#hour"));
+					attr($("#min"));
+					attr($("#sec"));
+					attr($("#start"));
+				}
+			});
+			/*停止点击event*/
+			$("#pause").on("click",function  () {
+				window.clearInterval(timer);
+				removeAttr($("#start"));
+			});
+			/*停止点击event*/
+			$("#stop").on("click",function  () {
+				window.clearInterval(timer);
+				$("#h").html("00");
+				$("#m").html("00");
+				$("#s").html("00");
+				$("#hour").val("");
+				$("#min").val("");
+				$("#sec").val("");
+				removeAttr($("#hour"));
+				removeAttr($("#min"));
+				removeAttr($("#sec"));
+				removeAttr($("#start"));
+			});
+		})
+		/*设置定时器变量*/
+		var timer;
+		/*判断时间数字只有一位数时*/
+		function format(str) {
+			if(parseInt(str) < 10 ) {
+				return "0" + str;
+			}
+			return str;
+		};
+		/*添加禁止使用属性*/
+		function attr (str) {
+			str.attr("disabled","true");
+		}
+		/*删除禁止使用属性*/
+		function removeAttr (str) {
+			str.removeAttr("disabled");
+		}
+		/*倒计时*/
+		function downTime () {
+			/*总时间*/
+			var time = $("#h").text()*3600 + $("#m").text()*60 + $("#s").text()*1;
+			time--;
+			/*获得时分秒*/
+			var h = Math.floor(time/3600);
+			var m = Math.floor((time-Math.floor(time/3600)*3600)/60);
+			var s = (time%60);
+			$("#s").html(format(s));
+			$("#h").html(format(h));
+			$("#m").html(format(m));
+			/*时间达到时*/
+			if (s==00 && h == 00 && m == 00) {
+				window.clearInterval(timer);
+				removeAttr($("#hour"));
+				removeAttr($("#min"));
+				removeAttr($("#sec"));
+				removeAttr($("#start"));
+			}
+		}
+	</script>
+</body>
+</html>
